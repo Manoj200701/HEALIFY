@@ -316,3 +316,153 @@ export default function HealifyApp() {
     </div>
   );
 }
+  // --- MODULE: Health Data Submission Form (Requirement 2.3) ---
+  const HealthSubmission = () => (
+    <div className="p-6 max-w-2xl mx-auto space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <button onClick={() => setPage('dashboard')} className="p-2 bg-slate-200 rounded-full"><ArrowLeft size={20}/></button>
+        <h2 className="text-2xl font-bold text-slate-800">Submit Health Data</h2>
+      </div>
+      
+      <div className="bg-white p-6 rounded-3xl border shadow-sm space-y-6">
+        <div className="space-y-4">
+          <h3 className="font-semibold text-teal-600 flex items-center gap-2"><Heart size={18}/> Vital Signs</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase">Blood Pressure</label>
+              <input type="text" placeholder="120/80" className="w-full p-3 border rounded-xl mt-1" />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase">Temperature (°F)</label>
+              <input type="text" placeholder="98.6" className="w-full p-3 border rounded-xl mt-1" />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="font-semibold text-teal-600 flex items-center gap-2"><PlusCircle size={18}/> Symptoms</h3>
+          <textarea 
+            className="w-full p-3 border rounded-xl h-32" 
+            placeholder="Describe how you are feeling... (or use voice input)"
+          ></textarea>
+          <button className="flex items-center gap-2 text-sm text-purple-600 font-medium bg-purple-50 px-4 py-2 rounded-lg">
+            <Mic size={16}/> Start Voice Dictation
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="font-semibold text-teal-600 flex items-center gap-2"><FileText size={18}/> Medical Images</h3>
+          <div className="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:border-teal-500 transition-all cursor-pointer bg-slate-50">
+            <p className="text-sm text-slate-500">Click to upload photos of symptoms/wounds</p>
+            <p className="text-xs text-slate-400 mt-1">Images will be compressed for 2G/3G networks</p>
+          </div>
+        </div>
+
+        <button 
+          onClick={() => { alert("Data submitted successfully!"); setPage('dashboard'); }}
+          className="w-full py-4 bg-teal-600 text-white rounded-xl font-bold shadow-lg shadow-teal-200"
+        >
+          Submit Consultation Request
+        </button>
+      </div>
+    </div>
+  );
+
+  // --- MODULE: Guardian Portal (Requirement 2.9) ---
+  const GuardianPortal = () => (
+    <div className="p-6 max-w-6xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-slate-800">Guardian Dashboard</h2>
+        <div className="flex items-center gap-2 bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-bold">
+          <Shield size={14}/> Linked Account
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Patient Overview Card */}
+        <div className="lg:col-span-1 bg-white p-6 rounded-3xl border shadow-sm">
+          <div className="text-center mb-6">
+            <div className="w-20 h-20 bg-slate-200 rounded-full mx-auto mb-3 overflow-hidden">
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=patient" alt="patient" />
+            </div>
+            <h3 className="font-bold text-lg">Rajesh Kumar</h3>
+            <p className="text-sm text-slate-500">Patient ID: #HL-9928</p>
+          </div>
+          <div className="space-y-3">
+            <div className="flex justify-between p-3 bg-slate-50 rounded-xl text-sm">
+              <span className="text-slate-500">Last Sync</span>
+              <span className="font-medium">2 mins ago</span>
+            </div>
+            <div className="flex justify-between p-3 bg-slate-50 rounded-xl text-sm">
+              <span className="text-slate-500">Status</span>
+              <span className="text-green-600 font-bold">Stable</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Care Logs */}
+        <div className="lg:col-span-2 space-y-4">
+          <h3 className="text-lg font-bold text-slate-700">Recent Medical Alerts</h3>
+          {[1, 2].map(i => (
+            <div key={i} className="bg-red-50 p-4 rounded-2xl border-l-4 border-red-500 flex justify-between items-center">
+              <div>
+                <p className="font-bold text-red-800">New Prescription Issued</p>
+                <p className="text-sm text-red-600">AI generated a protocol for "Seasonal Flu"</p>
+              </div>
+              <button className="bg-white px-4 py-2 rounded-lg text-xs font-bold text-red-600 border border-red-200">View Now</button>
+            </div>
+          ))}
+          
+          <h3 className="text-lg font-bold text-slate-700 mt-6">Patient Health Trends</h3>
+          <div className="bg-white p-6 rounded-3xl border shadow-sm h-48 flex items-center justify-center text-slate-400 italic">
+            [Health Trend Chart Visualization Area]
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // --- MODULE: Medical Knowledge Library (Requirement 2.11) ---
+  const HealthLibrary = () => (
+    <div className="p-6 max-w-5xl mx-auto space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold text-slate-800">Medical Knowledge Library</h2>
+        <div className="relative">
+          <input type="text" placeholder="Search diseases, symptoms..." className="pl-10 pr-4 py-2 border rounded-full w-full md:w-64 outline-none focus:ring-2 focus:ring-teal-500" />
+          <span className="absolute left-3 top-2.5 text-slate-400"><PlusCircle size={16}/></span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[
+          { title: 'Respiratory Infections', icon: <Wind />, color: 'bg-blue-50 text-blue-600' },
+          { title: 'Diabetes Management', icon: <Activity />, color: 'bg-green-50 text-green-600' },
+          { title: 'Maternal Health', icon: <Baby />, color: 'bg-pink-50 text-pink-600' },
+          { title: 'Skin Conditions', icon: <Droplet />, color: 'bg-orange-50 text-orange-600' },
+          { title: 'Heart Health', icon: <Heart />, color: 'bg-red-50 text-red-600' },
+          { title: 'Mental Wellness', icon: <Brain />, color: 'bg-purple-50 text-purple-600' },
+        ].map((item, i) => (
+          <div key={i} className="bg-white p-5 rounded-2xl border hover:border-teal-500 cursor-pointer transition-all group">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${item.color}`}>
+              {item.icon}
+            </div>
+            <h4 className="font-bold text-slate-800 group-hover:text-teal-600 transition-colors">{item.title}</h4>
+            <p className="text-xs text-slate-500 mt-2">Learn about symptoms, prevention, and home remedies.</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+<main className="pb-20 lg:pb-0">
+  {page === 'dashboard' && <Dashboard />}
+  {page === 'ai-chat' && <AIChat />}
+  {page === 'prescriptions' && <PrescriptionsPage />}
+  {page === 'vitals' && <HealthSubmission />} {/* UPDATED */}
+  {page === 'library' && <HealthLibrary />}   {/* ADDED */}
+  {page === 'guardian' && <GuardianPortal />}  {/* ADDED */}
+</main>
+<div onClick={() => setPage('guardian')} className="group cursor-pointer bg-slate-100 p-6 rounded-3xl border-l-4 border-slate-500 ...">
+   <Shield className="text-white" />
+   <h3>Guardian Portal</h3>
+   ...
+</div>
