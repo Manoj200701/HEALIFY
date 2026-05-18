@@ -208,3 +208,54 @@ const sendMsg = async () => {
   setMessages([...messages, { role: 'ai', text: data.text }]);
 };
 
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const { OpenAI } = require('openai');
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Structured Medical Response System
+async function generateMedicalAnalysis(vitals, symptoms) {
+    const prompt = `
+    ACT AS A SENIOR CLINICAL DIAGNOSTICIAN. 
+    Patient Vitals: ${JSON.stringify(vitals)}
+    Patient Symptoms: ${symptoms}
+    
+    REQUIREMENTS:
+    1. Provide a Primary Diagnosis.
+    2. Provide a Secondary Differential Diagnosis.
+    3. Suggest generic medications with dosages (TID/BID/QD).
+    4. List 3 Critical Do's and 3 Critical Don'ts.
+    5. Define the 'Red Flag' symptoms that require immediate ER visit.
+    
+    FORMAT: Return only as a valid JSON object.
+    `;
+
+    const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "system", content: prompt }],
+        response_format: { type: "json_object" }
+    });
+    return JSON.parse(response.choices[0].message.content);
+}
+
+app.post('/api/ai/diagnose', async (req, res) => {
+    try {
+        const { vitals, symptoms } = req.body;
+        const result = await generateMedicalAnalysis(vitals, symptoms);
+        res.json(result);
+    } catch (e) {
+        res.status(500).json({ error: "Clinical AI Engine Failure" });
+    }
+});
+
+mongoose.connect(process.env.MONGO_URI).then(() => {
+    app.listen(5000, () => console.log("Advanced Backend Running on Port 5000"));
+});
+
