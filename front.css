@@ -1,87 +1,115 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* --- 1. GLOBAL SETTINGS & TYPOGRAPHY --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+
+:root {
+    --primary: #008B8B;       /* Calming Teal */
+    --ai-purple: #9B59B6;     /* AI Intelligent Purple */
+    --accent-orange: #FF8C42;  /* Alert Orange */
+    --bg-light: #F0F4F8;      /* Soft Blue-Grey Background */
+    --glass-white: rgba(255, 255, 255, 0.75);
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
 
 body {
     font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: #1E293B;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 
-.card-shadow {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.card-shadow:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.nav-item.active {
-    color: #008B8B; /* Teal */
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-}
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
-
-/* AI Pulse Animation */
-@keyframes pulse-purple {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(155, 89, 182, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(155, 89, 182, 0); }
-}
-.ai-pulse {
-    animation: pulse-purple 2s infinite;
-}
 [v-cloak] { display: none; }
 
-:root {
-    --primary: #008B8B;
-    --ai-purple: #9B59B6;
-    --accent: #FF8C42;
-    --bg-light: #F0F4F8;
-}
+/* --- 2. PREMIUM UI COMPONENTS --- */
 
-.page-fade-enter-active, .page-fade-leave-active { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-.page-fade-enter-from { opacity: 0; transform: translateY(20px); }
-.page-fade-leave-to { opacity: 0; transform: translateY(-20px); }
-
+/* Glassmorphism Panel */
 .glass-panel {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+    background: var(--glass-white);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
 }
 
+/* Innovation Cards (Interactive) */
 .innovation-card {
-    transition: all 0.3s ease;
+    transition: var(--transition-smooth);
     cursor: pointer;
     border-radius: 32px;
-}
-.innovation-card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 20px 40px -10px rgba(0, 139, 139, 0.15);
+    background: white;
 }
 
-/* AI Voice Glow */
-.ai-mic-glow {
-    animation: pulse-purple 2s infinite;
+.innovation-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px -15px rgba(0, 139, 139, 0.2);
 }
-@keyframes pulse-purple {
+
+/* Progress Step Indicators */
+.step-indicator {
+    height: 5px;
+    flex: 1;
+    background: #E2E8F0;
+    border-radius: 10px;
+    transition: var(--transition-smooth);
+}
+
+.step-active { 
+    background: var(--primary); 
+    box-shadow: 0 0 10px rgba(0, 139, 139, 0.4);
+}
+
+/* --- 3. ANIMATIONS --- */
+
+/* Page Transitions (Vue.js) */
+.page-fade-enter-active, .page-fade-leave-active { 
+    transition: var(--transition-smooth); 
+}
+.page-fade-enter-from { 
+    opacity: 0; 
+    transform: translateY(25px); 
+}
+.page-fade-leave-to { 
+    opacity: 0; 
+    transform: translateY(-25px); 
+}
+
+/* Professional AI Glow Pulse */
+@keyframes ai-glow-pulse {
     0% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.6); }
     70% { box-shadow: 0 0 0 15px rgba(155, 89, 182, 0); }
     100% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0); }
 }
 
-.step-indicator {
-    height: 4px;
-    flex: 1;
-    background: #E2E8F0;
-    border-radius: 2px;
+.ai-mic-glow, .ai-pulse {
+    animation: ai-glow-pulse 2s infinite;
+    border-radius: 50%;
 }
-.step-active { background: var(--primary); }
 
+/* --- 4. UTILITIES --- */
+
+/* Custom Scrollbar for a Modern App Look */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+}
+
+/* Custom Selection Color */
+::selection {
+    background: var(--primary);
+    color: white;
+}
