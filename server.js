@@ -10,6 +10,10 @@ const twilio = require('twilio');
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.get('/', (req, res) => {
+    res.send('Healify Pro Backend is Running Successfully! 🚀');
+});
+
 
 // --- CONFIGURATION ---
 const PORT = process.env.PORT || 5000;
@@ -164,7 +168,7 @@ app.post('/api/emergency/sos', authenticate, async (req, res) => {
         const user = await User.findById(req.user.id);
         const message = `🚨 EMERGENCY ALERT: ${user.name}\nLocation: ${location}\nVitals: ${vitals}\nPlease provide immediate assistance!`;
 
-        // Send to Guardian (if linked)
+        let sentTo = [];
         if (user.guardianId) {
             const guardian = await User.findById(user.guardianId);
             await twilioClient.messages.create({
@@ -172,11 +176,23 @@ app.post('/api/emergency/sos', authenticate, async (req, res) => {
                 from: process.env.TWILIO_PHONE,
                 to: guardian.phone
             });
+            sentTo.push("Guardian");
         }
-        res.json({ success: true, message: "SOS Alerts sent to guardian and emergency services." });
+
+        // ALWAYS send to a central emergency number as a fallback
+        await twilioClient.messages.create({
+            body: message,
+            from: process.env.TWILIO_PHONE,
+            to: process.env.EMERGENCY_CENTER_PHONE // Add this to your .env
+        });
+        sentTo.push("Emergency Center");
+
+        res.json({ success: true, message: `SOS Alerts sent to ${sentTo.join(' and ')}` });
     } catch (e) {
         res.status(500).json({ error: "SOS Failed" });
     }
+});
+
 });
 
 // 5. Guardian Access
@@ -185,6 +201,18 @@ app.get('/api/guardian/patient-data', authenticate, async (req, res) => {
     const guardian = await User.findById(req.user.id);
     const records = await HealthRecord.find({ userId: guardian.guardianId });
     res.json(records);
+});
+// 6. Medical Knowledge Library
+app.get('/api/library', (req, res) => {
+    const libraryData = [
+        { category: 'Respiratory', title: 'Common Cold vs Flu', content: 'Guide on viral infections...', audioUrl: '/audio/respiratory.mp3' },
+        { category: 'Diabetes', title: 'Blood Sugar Management', content: 'How to manage sugar levels...', audioUrl: '/audio/diabetes.mp3' },
+        { category: 'Maternal', title: 'Prenatal Care', content: 'Guidelines for healthy pregnancy...', audioUrl: '/audio/maternal.mp3' },
+        { category: 'Heart', title: 'Hypertension Basics', content: 'Understanding blood pressure...', audioUrl: '/audio/heart.mp3' },
+        { category: 'Skin', title: 'Dermatitis Guide', content: 'Identifying skin rashes...', audioUrl: '/audio/skin.mp3' },
+        { category: 'Mental', title: 'Stress Management', content: 'Tips for rural mental wellness...', audioUrl: '/audio/mental.mp3' },
+    ];
+    res.json(libraryData);
 });
 
 // Database Connection
