@@ -10,10 +10,11 @@ const twilio = require('twilio');
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// Health Check Route for Render
 app.get('/', (req, res) => {
     res.send('Healify Pro Backend is Running Successfully! 🚀');
 });
-
 
 // --- CONFIGURATION ---
 const PORT = process.env.PORT || 5000;
@@ -161,7 +162,7 @@ app.post('/api/chat', authenticate, async (req, res) => {
     }
 });
 
-// 4. Emergency SOS Feature (Innovative)
+// 4. Emergency SOS Feature
 app.post('/api/emergency/sos', authenticate, async (req, res) => {
     const { location, vitals } = req.body;
     try {
@@ -179,11 +180,10 @@ app.post('/api/emergency/sos', authenticate, async (req, res) => {
             sentTo.push("Guardian");
         }
 
-        // ALWAYS send to a central emergency number as a fallback
         await twilioClient.messages.create({
             body: message,
             from: process.env.TWILIO_PHONE,
-            to: process.env.EMERGENCY_CENTER_PHONE // Add this to your .env
+            to: process.env.EMERGENCY_CENTER_PHONE
         });
         sentTo.push("Emergency Center");
 
@@ -193,8 +193,6 @@ app.post('/api/emergency/sos', authenticate, async (req, res) => {
     }
 });
 
-});
-
 // 5. Guardian Access
 app.get('/api/guardian/patient-data', authenticate, async (req, res) => {
     if (req.user.role !== 'guardian') return res.status(403).json({ message: "Forbidden" });
@@ -202,6 +200,7 @@ app.get('/api/guardian/patient-data', authenticate, async (req, res) => {
     const records = await HealthRecord.find({ userId: guardian.guardianId });
     res.json(records);
 });
+
 // 6. Medical Knowledge Library
 app.get('/api/library', (req, res) => {
     const libraryData = [
@@ -221,3 +220,4 @@ mongoose.connect(MONGO_URI)
     .catch(err => console.error("❌ DB Error:", err));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
