@@ -600,4 +600,14 @@ createApp({
     mounted() { lucide.createIcons(); },
     updated() { lucide.createIcons(); }
 }).mount('#app');
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+import './front.css';
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);
 
