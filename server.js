@@ -37,10 +37,9 @@ const HealthRecordSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     vitals: { bp: String, temp: String, heartRate: String, weight: String },
     symptoms: String,
-    images: [String], // URLs to uploaded images
     diagnosis: String,
     prescription: String,
-    status: { type: String, default: 'Pending' }, // Pending, Completed
+    status: { type: String, default: 'Pending' }, 
     createdAt: { type: Date, default: Date.now }
 });
 
@@ -85,40 +84,33 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({ token, user: { name: user.name, role: user.role, language: user.language } });
 });
 
-// 2. Health Data Submission
-app.post('/api/health/submit', authenticate, async (req, res) => {
-    try {
-        const record = await HealthRecord.create({
-            userId: req.user.id,
-            ...req.body
-        });
-        res.json({ message: "Health data submitted successfully", recordId: record._id });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// 3. AI Diagnosis & Prescription (The Core Feature)
+// 2. Advanced AI Diagnosis Journey
 app.post('/api/ai/diagnose', authenticate, async (req, res) => {
     const { symptoms, vitals } = req.body;
 
     const prompt = `
-    You are a professional medical AI. Based on these symptoms: ${symptoms} 
-    and these vitals: ${JSON.stringify(vitals)}, provide:
-    1. A likely diagnosis.
-    2. A safe, generic medication prescription (with dosages).
-    3. Detailed Do's and Don'ts.
-    4. Warning signs for emergency.
-    Format the response as JSON: { "diagnosis": "...", "prescription": "...", "guidelines": "..." }
+    ACT AS A SENIOR CLINICAL DIAGNOSTICIAN. 
+    Patient Vitals: ${JSON.stringify(vitals)}
+    Patient Symptoms: ${symptoms}
+    
+    REQUIREMENTS:
+    1. Provide a Primary Diagnosis.
+    2. Suggest generic medications with dosages (TID/BID/QD).
+    3. List 3 Critical Do's and 3 Critical Don'ts.
+    4. Define 'Red Flag' symptoms for emergency.
+    
+    FORMAT: Return as a valid JSON object.
     `;
 
     try {
         const completion = await openai.chat.completions.create({
             messages: [{ role: "system", content: prompt }],
-            model: "gpt-4o", 
+            model: "gpt-4o",
+            response_format: { type: "json_object" }
         });
 
         const aiResult = JSON.parse(completion.choices[0].message.content);
         
-        // Save to Database
         await HealthRecord.create({
             userId: req.user.id,
             symptoms,
@@ -128,24 +120,23 @@ app.post('/api/ai/diagnose', authenticate, async (req, res) => {
             status: 'Completed'
         });
 
-        // Send SMS Notification (Requirement 2.10)
+        // Rural SMS Notification
         const user = await User.findById(req.user.id);
         await twilioClient.messages.create({
-            body: `Healify: Your AI prescription is ready! Diagnosis: ${aiResult.diagnosis}. Please check the app for details.`,
+            body: `Healify Pro: AI Diagnosis ready. Diagnosis: ${aiResult.diagnosis}. Check app for script.`,
             from: process.env.TWILIO_PHONE,
             to: user.phone
         });
 
         res.json(aiResult);
     } catch (e) {
-        res.status(500).json({ error: "AI processing failed", details: e.message });
+        res.status(500).json({ error: "Clinical AI Engine Failure", details: e.message });
     }
 });
 
-// 4. AI Chat Counseling
+// 3. AI Chat Counseling
 app.post('/api/chat', authenticate, async (req, res) => {
     const { message } = req.body;
-    
     try {
         const completion = await openai.chat.completions.create({
             messages: [
@@ -154,24 +145,43 @@ app.post('/api/chat', authenticate, async (req, res) => {
             ],
             model: "gpt-4o",
         });
-
         const responseText = completion.choices[0].message.content;
-        
-        // Save chat history
         await Chat.findOneAndUpdate(
             { userId: req.user.id },
             { $push: { messages: { role: 'user', content: message }, { role: 'ai', content: responseText } } },
             { upsert: true }
         );
-
         res.json({ text: responseText });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
-// 5. Guardian Access (Requirement 2.9)
+// 4. Emergency SOS Feature (Innovative)
+app.post('/api/emergency/sos', authenticate, async (req, res) => {
+    const { location, vitals } = req.body;
+    try {
+        const user = await User.findById(req.user.id);
+        const message = `🚨 EMERGENCY ALERT: ${user.name}\nLocation: ${location}\nVitals: ${vitals}\nPlease provide immediate assistance!`;
+
+        // Send to Guardian (if linked)
+        if (user.guardianId) {
+            const guardian = await User.findById(user.guardianId);
+            await twilioClient.messages.create({
+                body: message,
+                from: process.env.TWILIO_PHONE,
+                to: guardian.phone
+            });
+        }
+        res.json({ success: true, message: "SOS Alerts sent to guardian and emergency services." });
+    } catch (e) {
+        res.status(500).json({ error: "SOS Failed" });
+    }
+});
+
+// 5. Guardian Access
 app.get('/api/guardian/patient-data', authenticate, async (req, res) => {
     if (req.user.role !== 'guardian') return res.status(403).json({ message: "Forbidden" });
-    
     const guardian = await User.findById(req.user.id);
     const records = await HealthRecord.find({ userId: guardian.guardianId });
     res.json(records);
@@ -179,83 +189,7 @@ app.get('/api/guardian/patient-data', authenticate, async (req, res) => {
 
 // Database Connection
 mongoose.connect(MONGO_URI)
-    .then(() => console.log("🚀 Healify Backend Connected to MongoDB"))
+    .then(() => console.log("🚀 Healify Pro Backend Connected to MongoDB"))
     .catch(err => console.error("❌ DB Error:", err));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-const handleLogin = async () => {
-  const response = await fetch('http://localhost:5000/api/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone: '1234567890', password: 'password123' })
-  });
-  const data = await response.json();
-  localStorage.setItem('token', data.token); // Save token for other requests
-  setPage('dashboard');
-};
-
-const sendMsg = async () => {
-  const response = await fetch('http://localhost:5000/api/chat', {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('token')}` 
-    },
-    body: JSON.stringify({ message: input })
-  });
-  const data = await response.json();
-  setMessages([...messages, { role: 'ai', text: data.text }]);
-};
-
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const { OpenAI } = require('openai');
-
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-// Structured Medical Response System
-async function generateMedicalAnalysis(vitals, symptoms) {
-    const prompt = `
-    ACT AS A SENIOR CLINICAL DIAGNOSTICIAN. 
-    Patient Vitals: ${JSON.stringify(vitals)}
-    Patient Symptoms: ${symptoms}
-    
-    REQUIREMENTS:
-    1. Provide a Primary Diagnosis.
-    2. Provide a Secondary Differential Diagnosis.
-    3. Suggest generic medications with dosages (TID/BID/QD).
-    4. List 3 Critical Do's and 3 Critical Don'ts.
-    5. Define the 'Red Flag' symptoms that require immediate ER visit.
-    
-    FORMAT: Return only as a valid JSON object.
-    `;
-
-    const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{ role: "system", content: prompt }],
-        response_format: { type: "json_object" }
-    });
-    return JSON.parse(response.choices[0].message.content);
-}
-
-app.post('/api/ai/diagnose', async (req, res) => {
-    try {
-        const { vitals, symptoms } = req.body;
-        const result = await generateMedicalAnalysis(vitals, symptoms);
-        res.json(result);
-    } catch (e) {
-        res.status(500).json({ error: "Clinical AI Engine Failure" });
-    }
-});
-
-mongoose.connect(process.env.MONGO_URI).then(() => {
-    app.listen(5000, () => console.log("Advanced Backend Running on Port 5000"));
-});
-
