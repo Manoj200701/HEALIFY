@@ -1,23 +1,40 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 body {
-  margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-family: 'Inter', sans-serif;
 }
 
-/* Custom Scrollbar for AI Chat */
+.card-shadow {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card-shadow:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.nav-item.active {
+    color: #008B8B; /* Teal */
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+    width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+    background: #f1f1f1;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+/* AI Pulse Animation */
+@keyframes pulse-purple {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(155, 89, 182, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(155, 89, 182, 0); }
+}
+.ai-pulse {
+    animation: pulse-purple 2s infinite;
 }
 
