@@ -3,36 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healify | Patient Telehealth</title>
+    <title>Healify Pro | AI Telehealth Ecosystem</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="front.css">
-    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="front.css">
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans">
+<body class="bg-[#F0F4F8] text-slate-900 font-sans overflow-x-hidden">
 
-    <!-- App Container -->
-    <div id="app">
-        <!-- Content will be injected here by front.js -->
+    <div id="app" v-cloak>
+        <!-- Voice Command Indicator -->
+        <div v-if="isListening" class="fixed top-5 left-1/2 -translate-x-1/2 z-[100] bg-purple-600 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-xl animate-bounce">
+            <i data-lucide="mic" class="w-4 h-4"></i> <span class="text-xs font-bold uppercase">Listening for commands...</span>
+        </div>
+
+        <transition name="page-fade" mode="out-in">
+            <div :key="currentPage" class="min-h-screen">
+                
+                <!-- PRO NAVIGATION BAR -->
+                <nav v-if="isLoggedIn" class="bg-white/70 backdrop-blur-xl sticky top-0 z-50 px-6 py-3 flex items-center justify-between border-b border-slate-200">
+                    <div class="flex items-center gap-2 cursor-pointer" @click="currentPage = 'dashboard'">
+                        <div class="bg-[#008B8B] p-2 rounded-xl shadow-lg shadow-teal-200"><i data-lucide="shield-plus" class="text-white w-5 h-5"></i></div>
+                        <span class="text-2xl font-black text-[#008B8B] tracking-tight">Healify<span class="text-slate-400 font-light">Pro</span></span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="hidden md:flex items-center bg-slate-100 p-1 rounded-lg border">
+                            <button v-for="l in languages" @click="lang = l.code" :class="lang === l.code ? 'bg-white shadow-sm' : ''" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all">{{l.name}}</button>
+                        </div>
+                        <button @click="logout" class="p-2 text-red-500 hover:bg-red-50 rounded-full transition-all"><i data-lucide="log-out" class="w-6 h-6"></i></button>
+                    </div>
+                </nav>
+
+                <!-- DYNAMIC PAGE VIEWS -->
+                <div v-if="currentPage === 'language-select'" v-html="pages.languageSelect"></div>
+                <div v-if="currentPage === 'login'" v-html="pages.login"></div>
+                <div v-if="currentPage === 'dashboard'" v-html="pages.dashboard"></div>
+                <div v-if="currentPage === 'ai-journey'" v-html="pages.aiJourney"></div>
+                <div v-if="currentPage === 'prescriptions'" v-html="pages.prescriptions"></div>
+                <div v-if="currentPage === 'guardian'" v-html="pages.guardian"></div>
+                <div v-if="currentPage === 'library'" v-html="pages.library"></div>
+            </div>
+        </transition>
+
+        <!-- ADVANCED BOTTOM NAVIGATION -->
+        <div v-if="isLoggedIn" class="fixed bottom-0 w-full bg-white/90 backdrop-blur-2xl border-t flex justify-around py-4 px-2 lg:hidden z-50">
+            <button @click="currentPage = 'dashboard'" :class="currentPage === 'dashboard' ? 'text-[#008B8B] scale-110' : 'text-slate-400'" class="flex flex-col items-center gap-1 transition-all">
+                <i data-lucide="layout-grid" class="w-6 h-6"></i><span class="text-[10px] font-bold">Home</span>
+            </button>
+            <button @click="currentPage = 'ai-journey'" :class="currentPage === 'ai-journey' ? 'text-purple-600 scale-110' : 'text-slate-400'" class="flex flex-col items-center gap-1 transition-all">
+                <i data-lucide="wand-2" class="w-6 h-6"></i><span class="text-[10px] font-bold">AI Diagnosis</span>
+            </button>
+            <button @click="currentPage = 'prescriptions'" :class="currentPage === 'prescriptions' ? 'text-[#008B8B] scale-110' : 'text-slate-400'" class="flex flex-col items-center gap-1 transition-all">
+                <i data-lucide="pill" class="w-6 h-6"></i><span class="text-[10px] font-bold">Scripts</span>
+            </button>
+            <button @click="currentPage = 'guardian'" :class="currentPage === 'guardian' ? 'text-[#008B8B] scale-110' : 'text-slate-400'" class="flex flex-col items-center gap-1 transition-all">
+                <i data-lucide="users" class="w-6 h-6"></i><span class="text-[10px] font-bold">Guardian</span>
+            </button>
+        </div>
     </div>
-
-    <!-- Mobile Bottom Navigation (Hidden by default) -->
-    <div id="mobile-nav" class="hidden fixed bottom-0 w-full bg-white border-t flex justify-around py-3 px-2 shadow-2xl lg:hidden">
-        <button onclick="router.navigate('dashboard')" class="nav-item flex flex-col items-center gap-1 text-slate-400">
-            <i data-lucide="user" class="w-5 h-5"></i> <span class="text-[10px] font-medium">Home</span>
-        </button>
-        <button onclick="router.navigate('prescriptions')" class="nav-item flex flex-col items-center gap-1 text-slate-400">
-            <i data-lucide="clipboard-list" class="w-5 h-5"></i> <span class="text-[10px] font-medium">Scripts</span>
-        </button>
-        <button onclick="router.navigate('ai-chat')" class="nav-item flex flex-col items-center gap-1 text-slate-400">
-            <i data-lucide="message-square" class="w-5 h-5"></i> <span class="text-[10px] font-medium">AI Chat</span>
-        </button>
-        <button onclick="router.navigate('vitals')" class="nav-item flex flex-col items-center gap-1 text-slate-400">
-            <i data-lucide="heart" class="w-5 h-5"></i> <span class="text-[10px] font-medium">Health</span>
-        </button>
-    </div>
-
     <script src="front.js"></script>
 </body>
 </html>
-
