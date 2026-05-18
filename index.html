@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healify | Patient Telehealth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="front.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans">
+
+    <!-- App Container -->
+    <div id="app">
+        <!-- Content will be injected here by front.js -->
+    </div>
+
+    <!-- Mobile Bottom Navigation (Hidden by default) -->
+    <div id="mobile-nav" class="hidden fixed bottom-0 w-full bg-white border-t flex justify-around py-3 px-2 shadow-2xl lg:hidden">
+        <button onclick="router.navigate('dashboard')" class="nav-item flex flex-col items-center gap-1 text-slate-400">
+            <i data-lucide="user" class="w-5 h-5"></i> <span class="text-[10px] font-medium">Home</span>
+        </button>
+        <button onclick="router.navigate('prescriptions')" class="nav-item flex flex-col items-center gap-1 text-slate-400">
+            <i data-lucide="clipboard-list" class="w-5 h-5"></i> <span class="text-[10px] font-medium">Scripts</span>
+        </button>
+        <button onclick="router.navigate('ai-chat')" class="nav-item flex flex-col items-center gap-1 text-slate-400">
+            <i data-lucide="message-square" class="w-5 h-5"></i> <span class="text-[10px] font-medium">AI Chat</span>
+        </button>
+        <button onclick="router.navigate('vitals')" class="nav-item flex flex-col items-center gap-1 text-slate-400">
+            <i data-lucide="heart" class="w-5 h-5"></i> <span class="text-[10px] font-medium">Health</span>
+        </button>
+    </div>
+
+    <script src="front.js"></script>
+</body>
+</html>
+
